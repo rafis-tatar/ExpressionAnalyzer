@@ -1,11 +1,11 @@
-// See https://aka.ms/new-console-template for more information
 using System.Globalization;
 using System.Text;
 
+namespace ExpressionAnalyzer;
 public class Interpretive
 {
         private readonly StringBuilder _valueItemBuilder;
-        Dictionary<string,Delegate> _functions;
+        private readonly Dictionary<string,Delegate> _functions;
         public Interpretive()
         {       
                 _valueItemBuilder = new StringBuilder();   
@@ -18,18 +18,12 @@ public class Interpretive
                         throw new ArgumentException($"Function with name {name} already registered");
                 _functions.Add(name, func);
         }
-        public double Calculate(string? expression)
-        {                
-                try                
-                {
-                        var items = GetInterpretiveElements(expression?.Replace(" ",string.Empty));
-                        var result = items.Calculate();        
-                        return result;
-                }
-                catch
-                {                        
-                        throw new SyntaxException("Syntaxes not valid");
-                }                
+        public double Calculate(string? expression)=>Calculate(expression, CultureInfo.CurrentCulture);
+        public double Calculate(string? expression, CultureInfo cultureInfo)
+        {            
+                var items = GetInterpretiveElements(expression?.Replace(" ",string.Empty),cultureInfo);
+                var result = items.Calculate();        
+                return result;
         }        
        
         private void LoadFunctions()
@@ -37,14 +31,14 @@ public class Interpretive
                 RegisterFunction("SUM", (double a, double b)=> a+b);
                 RegisterFunction("SQRT", (double a )=> Math.Sqrt(a));
         }
-        private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression)
+        private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression, CultureInfo cultureInfo)
         {
                 string? currentExpression = expression;
                 List<IInterpretiveElement> items = new List<IInterpretiveElement>();
                 int index = 0;
                 while(currentExpression!=null && currentExpression.Length>0)
                 {                     
-                     var item =FeedCharacter(ref currentExpression, index);
+                     var item =FeedCharacter(ref currentExpression, index, cultureInfo);
                      if (item != null) {
                         items.Add(item);
                         currentExpression = currentExpression.Substring(item.Expression?.Length ?? 0);
@@ -55,18 +49,25 @@ public class Interpretive
                 }
                 return items;
         }
-        private IInterpretiveElement? FeedCharacter(ref string currentExpression, int index)
+        private IInterpretiveElement? FeedCharacter(ref string currentExpression, int index,CultureInfo cultureInfo)
         {                
                 char? next = currentExpression.Length > index ? currentExpression[index] : null;
                 if (next is null)
                 {
                         var str = _valueItemBuilder.ToString();
-                        var item = CreateOperandItem(str);                           
+                        var item = CreateOperandItem(str,cultureInfo);                           
                         _valueItemBuilder.Clear();
                         return item;               
                 }
                 if(IsSeparate(next))
-                {                        
+                {        
+                        if (_valueItemBuilder.Length > 0)
+                        {
+                                var str = _valueItemBuilder.ToString();
+                                var item = CreateOperandItem(str,cultureInfo);                           
+                                _valueItemBuilder.Clear();
+                                return item;                        
+                        }                
                         return new InterpretiveSeparateItem($"{next}");
                 }
 
@@ -75,7 +76,7 @@ public class Interpretive
                         if (_valueItemBuilder.Length > 0)
                         {
                                 var str = _valueItemBuilder.ToString();
-                                var item = CreateOperandItem(str);                           
+                                var item = CreateOperandItem(str,cultureInfo);                           
                                 _valueItemBuilder.Clear();
                                 return item;                        
                         }
@@ -93,7 +94,7 @@ public class Interpretive
                                 var endIndex = GetCloseBracketedIndex(currentExpression.Substring(str.Length));
                                 var functionContentExpression = currentExpression.Substring(str.Length,endIndex+1);                                                                
 
-                                var arguments = GetInterpretiveElements(functionContentExpression.Substring(1,endIndex- 1));
+                                var arguments = GetInterpretiveElements(functionContentExpression.Substring(1,endIndex- 1),cultureInfo);
                                 var functionItem = new InterpretiveFuncItem()
                                 {
                                         Expression = $"{str}{functionContentExpression}",
@@ -106,7 +107,7 @@ public class Interpretive
                         {
                                 var endIndex = GetCloseBracketedIndex(currentExpression);                       
                                 var bracketContentExpression = currentExpression.Substring(0,endIndex+1);
-                                var arguments = GetInterpretiveElements(bracketContentExpression.Substring(1,endIndex-1));
+                                var arguments = GetInterpretiveElements(bracketContentExpression.Substring(1,endIndex-1),cultureInfo);
                                 var bracketItem = new InterpretiveBracketItem()
                                 {
                                         Expression = bracketContentExpression,
@@ -131,9 +132,14 @@ public class Interpretive
                 };                
                 return item;
         }
-        private IInterpretiveElement? CreateOperandItem(string raw)
+        private IInterpretiveElement? CreateOperandItem(string raw, CultureInfo cultureInfo)
         {
-                if(double.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out double result))
+                
+                if(!raw.All(o=>Char.IsNumber(o)||cultureInfo.NumberFormat.NumberDecimalSeparator == $"{o}"))
+                {
+                        throw new SyntaxException("Syntaxes not valid or CultureInfo");
+                }
+                if(double.TryParse(raw, NumberStyles.Number, cultureInfo, out double result))
                 {
                         return new InterpretiveValueItem(result);
                 }

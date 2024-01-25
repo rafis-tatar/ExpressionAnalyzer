@@ -1,4 +1,6 @@
-// See https://aka.ms/new-console-template for more information
+using System.Globalization;
+
+namespace ExpressionAnalyzer;
 public class InterpretiveFuncItem : IInterpretiveItem
 {
         public string? Expression {get;  set;}
@@ -18,9 +20,12 @@ public class InterpretiveFuncItem : IInterpretiveItem
                                         ls.Add(value);
                                 }                                        
                         } 
-                        object?[]? arguments = ls.Select(o=>(object?)o).ToArray();                        
+                        object?[]? arguments = ls.Any() ? ls.Select(o=>(object?)o).ToArray() : null;                        
                         var result = Function.DynamicInvoke(arguments);
-                        if (result is double) return (double) result;
+                        if (result is double) 
+                                return (double) result;
+                        else 
+                                return Convert.ToDouble(result);
                 }                
                 return double.NaN;
         }
