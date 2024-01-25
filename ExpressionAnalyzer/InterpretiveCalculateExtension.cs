@@ -1,4 +1,4 @@
-// See https://aka.ms/new-console-template for more information
+namespace ExpressionAnalyzer;
 public static class InterpretiveCalculateExtension
 {
         private static bool IsMultiplicationOperation(IInterpretiveElement argument)
@@ -37,8 +37,8 @@ public static class InterpretiveCalculateExtension
 
         static IEnumerable<IInterpretiveElement> SetCalculatePosition(IEnumerable<IInterpretiveElement> Arguments)
         {
-                if (Arguments.Count(operation=> operation is InterpretiveOperationItem) >= Arguments.Count(operation=> operation is not InterpretiveOperationItem))
-                        throw new SyntaxException();
+                // if (Arguments.Count(operation=> operation is InterpretiveOperationItem) > Arguments.Count(operation=> operation is not InterpretiveOperationItem))
+                //         throw new SyntaxException();
                         
                 if (!Arguments.Any(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)))
                         return Arguments;
@@ -49,7 +49,7 @@ public static class InterpretiveCalculateExtension
                 var _calcPositions = new List<IInterpretiveElement>();
                 var ls = Arguments.ToList();
                 var index = ls.IndexOf(ls.First(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)));
-                var operation = (InterpretiveOperationItem)ls[index];
+                //var operation = (InterpretiveOperationItem)ls[index];
                 _calcPositions.AddRange(ls.Take(index-1));
                 var arg = ls.Skip(index-1).Take(3);
                 _calcPositions.Add(new InterpretiveBracketItem(){
