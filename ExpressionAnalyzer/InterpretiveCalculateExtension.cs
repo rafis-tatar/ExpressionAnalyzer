@@ -16,7 +16,7 @@ public static class InterpretiveCalculateExtension
                 {            
                         if(argument is IInterpretiveItem arg)
                         {
-                                result = SetOperation(result,arg, currentOperation);  
+                                result = SetMathOperation(result,arg, currentOperation);  
                                 currentOperation = null;                                 
                         }   
                         else if(argument is InterpretiveOperationItem operation)
@@ -36,9 +36,7 @@ public static class InterpretiveCalculateExtension
         }
 
         static IEnumerable<IInterpretiveElement> SetCalculatePosition(IEnumerable<IInterpretiveElement> Arguments)
-        {
-                // if (Arguments.Count(operation=> operation is InterpretiveOperationItem) > Arguments.Count(operation=> operation is not InterpretiveOperationItem))
-                //         throw new SyntaxException();
+        {                
                         
                 if (!Arguments.Any(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)))
                         return Arguments;
@@ -49,7 +47,6 @@ public static class InterpretiveCalculateExtension
                 var _calcPositions = new List<IInterpretiveElement>();
                 var ls = Arguments.ToList();
                 var index = ls.IndexOf(ls.First(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)));
-                //var operation = (InterpretiveOperationItem)ls[index];
                 _calcPositions.AddRange(ls.Take(index-1));
                 var arg = ls.Skip(index-1).Take(3);
                 _calcPositions.Add(new InterpretiveBracketItem(){
@@ -63,16 +60,17 @@ public static class InterpretiveCalculateExtension
                 return _calcPositions;   
         }
 
-        static double SetOperation(double value, IInterpretiveItem argument, InterpretiveOperationItem? operation)
+        static double SetMathOperation(double value, IInterpretiveItem argument, InterpretiveOperationItem? operation)
         {
+                double argValue  = Convert.ToDouble(argument.GetValue());
                 if(operation is null)
-                        return argument.GetValue();
+                        return argValue;
                 var newValue = operation.Expression switch
                                         {
-                                                "+" => value + argument.GetValue(),
-                                                "-"=> value - argument.GetValue(),
-                                                "*"=> value * argument.GetValue(),
-                                                "/"=> value / argument.GetValue(),
+                                                "+" => value + argValue,
+                                                "-"=> value - argValue,
+                                                "*"=> value * argValue,
+                                                "/"=> value / argValue,
                                                 _ => throw new SyntaxException($"There's no a suitable operator for the char {operation.Expression}")
                                         };
                 return newValue;

@@ -5,7 +5,7 @@ public class InterpretiveSeparateItem : IInterpretiveElement
         {
                 Expression = separate;
         }
-        public string? Expression { get; }
+        public string? Expression { get; set; }
         public override string ToString()
                 => Expression ?? string.Empty;
 }

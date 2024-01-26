@@ -1,5 +1,9 @@
 namespace ExpressionAnalyzer;
 public interface IInterpretiveItem:IInterpretiveElement
 {        
-        double GetValue();
+        object? GetValue();
+}
+public interface IInterpretiveItem<T>:IInterpretiveElement
+{        
+        T GetValue();
 }
