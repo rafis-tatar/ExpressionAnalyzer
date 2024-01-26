@@ -6,30 +6,45 @@ public class Interpretive
 {
         private readonly StringBuilder _valueItemBuilder;
         private readonly Dictionary<string,Delegate> _functions;
+        private readonly Dictionary<string,object> _variables;
         public Interpretive()
         {       
                 _valueItemBuilder = new StringBuilder();   
-                _functions = new Dictionary<string, Delegate>();     
-                LoadFunctions();
+                _functions = new Dictionary<string, Delegate>();    
+                _variables= new Dictionary<string, object>();                 
+        }
+        public bool SetVariable<T>(string name, object variable)                 
+        {
+                if (!name.StartsWith("@"))
+                        throw new SyntaxException("Variable name must start with \'@\' symbol");
+                return _variables.TryAdd(name, variable);
         }
         public void RegisterFunction(string name, Delegate func)
         {
                 if(_functions.ContainsKey(name)) 
                         throw new ArgumentException($"Function with name {name} already registered");
-                _functions.Add(name, func);
-        }
+                _functions.Add(name, func);                
+        }       
         public double Calculate(string? expression)=>Calculate(expression, CultureInfo.CurrentCulture);
         public double Calculate(string? expression, CultureInfo cultureInfo)
         {            
-                var items = GetInterpretiveElements(expression?.Replace(" ",string.Empty),cultureInfo);
+                var formattedString = SetVariableToExpression(expression?.Replace(" ",string.Empty),cultureInfo);
+                var items = GetInterpretiveElements(formattedString,cultureInfo);
                 var result = items.Calculate();        
                 return result;
         }        
        
-        private void LoadFunctions()
+        private string? SetVariableToExpression(string? expression, CultureInfo culture)
         {                
-                RegisterFunction("SUM", (double a, double b)=> a+b);
-                RegisterFunction("SQRT", (double a )=> Math.Sqrt(a));
+                if (string.IsNullOrWhiteSpace(expression)) 
+                        return expression;
+
+                string? _expression = expression;
+                foreach (var item in _variables)
+                {
+                        _expression = _expression.Replace(item.Key, $"{item.Value}", false, culture);
+                }
+                return _expression;
         }
         private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression, CultureInfo cultureInfo)
         {
@@ -95,13 +110,18 @@ public class Interpretive
                                 var functionContentExpression = currentExpression.Substring(str.Length,endIndex+1);                                                                
 
                                 var arguments = GetInterpretiveElements(functionContentExpression.Substring(1,endIndex- 1),cultureInfo);
-                                var functionItem = new InterpretiveFuncItem()
+                                var function = _functions[str];
+                                var classType = typeof(InterpretiveFuncItem<>);
+                                Type[] typeParams = new Type[] { function.Method.ReturnType };
+                                Type constructedType = classType.MakeGenericType(typeParams);
+                                var genericFunType = (IInterpretiveFuncItem?)Activator.CreateInstance(constructedType);
+                                if(genericFunType != null)
                                 {
-                                        Expression = $"{str}{functionContentExpression}",
-                                        Arguments = arguments, 
-                                        Function = _functions[str]
-                                };
-                                return functionItem;
+                                        genericFunType.Expression = $"{str}{functionContentExpression}";        
+                                        genericFunType.Arguments = arguments;
+                                        genericFunType.Function = function;
+                                }
+                                return genericFunType;
                         }
                         else
                         {
@@ -141,7 +161,7 @@ public class Interpretive
                 }
                 if(double.TryParse(raw, NumberStyles.Number, cultureInfo, out double result))
                 {
-                        return new InterpretiveValueItem(result);
+                        return new InterpretiveNumberItem(result);
                 }
                 return default;
         }
