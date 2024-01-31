@@ -2,21 +2,17 @@
 using ExpressionAnalyzer;
 
 var interpretive = new Interpretive();
-
-interpretive.RegisterFunction("Sin",(double a) =>Math.Sin(a));
-interpretive.RegisterFunction("Date", ()=> DateTime.Now);
-interpretive.RegisterFunction("Day", (DateTime date)=> date.Day);
-interpretive.RegisterFunction("Sum", (double a, double b)=> a+b);
-
-interpretive.SetVariable<double>("@a", 12);
-interpretive.SetVariable<double>("@b", 2);
-
-var expression = "Sum(Sin(Day(Date()));Sum(@a;@b)) * 2 + 27/3";
-
+interpretive.RegisterFunction("sin",(double a) =>Math.Sin(a));
+interpretive.RegisterFunction("date",() => DateTimeOffset.Now.Date);
+interpretive.RegisterFunction("day",(DateTime date) => date.Day);
+interpretive.SetVariable("@a",22);
+interpretive.SetVariable("@b","day(date())");
+var expression = "@b+2^3*(4/2+5)^2+@a";
 try
 {
     var d = interpretive.Calculate(expression, CultureInfo.InvariantCulture);
-    Console.WriteLine($"{expression}={d.ToString(CultureInfo.InvariantCulture)}");    
+    Console.WriteLine($"{expression} => {interpretive.FormattedString}");    
+    Console.WriteLine($"{expression} = {d.ToString(CultureInfo.InvariantCulture)}");    
 }
 catch (Exception exception)
 {

@@ -7,13 +7,16 @@ public class Interpretive
         private readonly StringBuilder _valueItemBuilder;
         private readonly Dictionary<string,Delegate> _functions;
         private readonly Dictionary<string,object> _variables;
+
+        public string? FormattedString {get; private set;}
+
         public Interpretive()
         {       
                 _valueItemBuilder = new StringBuilder();   
-                _functions = new Dictionary<string, Delegate>();    
-                _variables= new Dictionary<string, object>();                 
+                _functions = new Dictionary<string, Delegate>();     
+                 _variables= new Dictionary<string, object>();
         }
-        public bool SetVariable<T>(string name, object variable)                 
+        public bool SetVariable<T>(string name, T variable)  where T: notnull
         {
                 if (!name.StartsWith("@"))
                         throw new SyntaxException("Variable name must start with \'@\' symbol");
@@ -22,14 +25,14 @@ public class Interpretive
         public void RegisterFunction(string name, Delegate func)
         {
                 if(_functions.ContainsKey(name)) 
-                        throw new ArgumentException($"Function with name {name} already registered");
-                _functions.Add(name, func);                
-        }       
+                        throw new ArgumentException($"Function with name {name} already registered or start with ");
+                _functions.Add(name, func);
+        }
         public double Calculate(string? expression)=>Calculate(expression, CultureInfo.CurrentCulture);
         public double Calculate(string? expression, CultureInfo cultureInfo)
         {            
-                var formattedString = SetVariableToExpression(expression?.Replace(" ",string.Empty),cultureInfo);
-                var items = GetInterpretiveElements(formattedString,cultureInfo);
+                FormattedString = SetVariableToExpression(expression?.Replace(" ",string.Empty),cultureInfo);
+                var items = GetInterpretiveElements(FormattedString,cultureInfo);
                 var result = items.Calculate();        
                 return result;
         }        
@@ -45,7 +48,7 @@ public class Interpretive
                         _expression = _expression.Replace(item.Key, $"{item.Value}", false, culture);
                 }
                 return _expression;
-        }
+        }             
         private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression, CultureInfo cultureInfo)
         {
                 string? currentExpression = expression;
@@ -148,6 +151,7 @@ public class Interpretive
                         '-' => new InterpretiveOperationItem(OperatorType.Subtraction),
                         '*' => new InterpretiveOperationItem(OperatorType.Multiplication),
                         '/' => new InterpretiveOperationItem(OperatorType.Division),
+                        '^' => new InterpretiveOperationItem(OperatorType.Exponentiation),
                         _ => throw new SyntaxException($"There's no a suitable operator for the char {c}"),
                 };                
                 return item;
@@ -196,7 +200,7 @@ public class Interpretive
         private static bool IsOperatorCharacter(char? c) 
                 => c!= null && c switch
                 {           
-                var x when new char?[]{'+', '-', '*', '/'}.Contains(x) => true,
+                var x when new char?[]{'+', '-', '*', '/', '^'}.Contains(x) => true,
                 _ => false
                 };       
 }
