@@ -3,14 +3,18 @@ using ExpressionAnalyzer;
 
 var interpretive = new Interpretive();
 interpretive.RegisterFunction("sin",(double a) =>Math.Sin(a));
-interpretive.RegisterFunction("sin_a",(double a) => Math.Sin(a));
-interpretive.RegisterFunction("date",() => DateTime.Now.Day);
-var expression = "4+3^2+sin_a(3)";
+interpretive.RegisterFunction("date",() => DateTimeOffset.Now.Date);
+interpretive.RegisterFunction("day",(DateTime date) => date.Day);
+interpretive.SetVariable("@a",22);
+interpretive.SetVariable("@b","day(date())");
+//var expression = "(sin(@b)+2^3*(4/2+5))^2";
+var expression = "2^2*(4/2+1)";
 
 try
 {
     var d = interpretive.Calculate(expression, CultureInfo.InvariantCulture);
-    Console.WriteLine($"{expression}={d.ToString(CultureInfo.InvariantCulture)}");    
+    Console.WriteLine($"{expression} => {interpretive.FormattedString}");    
+    Console.WriteLine($"{expression} = {d.ToString(CultureInfo.InvariantCulture)}");    
 }
 catch (Exception exception)
 {

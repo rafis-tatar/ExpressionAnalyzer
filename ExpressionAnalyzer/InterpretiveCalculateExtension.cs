@@ -64,8 +64,12 @@ public static class InterpretiveCalculateExtension
         }
 
         static double SetOperation(double value, IInterpretiveItem argument, InterpretiveOperationItem? operation)
-        {
-                var val = argument.GetValue();
+        {                
+                var val = Convert.ToDouble(argument.GetValue());
+                // if(val is null) 
+                // {
+                //         throw new SyntaxException();
+                // }
                 if(operation is null)
                         return val;
                 var newValue = operation.Expression switch

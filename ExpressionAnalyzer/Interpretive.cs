@@ -6,10 +6,21 @@ public class Interpretive
 {
         private readonly StringBuilder _valueItemBuilder;
         private readonly Dictionary<string,Delegate> _functions;
+        private readonly Dictionary<string,object> _variables;
+
+        public string? FormattedString {get; private set;}
+
         public Interpretive()
         {       
                 _valueItemBuilder = new StringBuilder();   
                 _functions = new Dictionary<string, Delegate>();     
+                 _variables= new Dictionary<string, object>();
+        }
+        public bool SetVariable<T>(string name, T variable)  where T: notnull               
+        {
+                if (!name.StartsWith("@"))
+                        throw new SyntaxException("Variable name must start with \'@\' symbol");
+                return _variables.TryAdd(name, variable);
         }
         public void RegisterFunction(string name, Delegate func)
         {
@@ -20,10 +31,24 @@ public class Interpretive
         public double Calculate(string? expression)=>Calculate(expression, CultureInfo.CurrentCulture);
         public double Calculate(string? expression, CultureInfo cultureInfo)
         {            
-                var items = GetInterpretiveElements(expression?.Replace(" ",string.Empty),cultureInfo);
+                FormattedString = SetVariableToExpression(expression?.Replace(" ",string.Empty),cultureInfo);
+                var items = GetInterpretiveElements(FormattedString,cultureInfo);
                 var result = items.Calculate();        
                 return result;
-        }               
+        }        
+       
+        private string? SetVariableToExpression(string? expression, CultureInfo culture)
+        {                
+                if (string.IsNullOrWhiteSpace(expression)) 
+                        return expression;
+
+                string? _expression = expression;
+                foreach (var item in _variables)
+                {
+                        _expression = _expression.Replace(item.Key, $"{item.Value}", false, culture);
+                }
+                return _expression;
+        }             
         private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression, CultureInfo cultureInfo)
         {
                 string? currentExpression = expression;
