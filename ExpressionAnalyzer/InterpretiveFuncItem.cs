@@ -22,11 +22,7 @@ public class InterpretiveFuncItem : IInterpretiveItem
                         } 
                         object?[]? arguments = ls.Any() ? ls.ToArray() : null;                        
                         var result = Function.DynamicInvoke(arguments);
-                        return result;
-                        // if (result is double) 
-                        //         return (double) result;
-                        // else 
-                        //         return Convert.ToDouble(result);
+                        return result;                        
                 }                
                 return default;
         }

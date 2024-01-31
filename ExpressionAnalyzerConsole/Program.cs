@@ -7,9 +7,7 @@ interpretive.RegisterFunction("date",() => DateTimeOffset.Now.Date);
 interpretive.RegisterFunction("day",(DateTime date) => date.Day);
 interpretive.SetVariable("@a",22);
 interpretive.SetVariable("@b","day(date())");
-//var expression = "(sin(@b)+2^3*(4/2+5))^2";
-var expression = "2^2*(4/2+1)";
-
+var expression = "@b+2^3*(4/2+5)^2+@a";
 try
 {
     var d = interpretive.Calculate(expression, CultureInfo.InvariantCulture);

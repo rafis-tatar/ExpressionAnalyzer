@@ -48,8 +48,15 @@ public static class InterpretiveCalculateExtension
                 
                 var _calcPositions = new List<IInterpretiveElement>();
                 var ls = Arguments.ToList();
-                var index = ls.IndexOf(ls.First(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)  || IsExponentiation(operation)));
-
+                int index = -1;
+                if (ls.Any(o=>IsExponentiation(o)))
+                {
+                        index = ls.IndexOf(ls.First(o=>IsExponentiation(o)));
+                }
+                else
+                {
+                        index = ls.IndexOf(ls.First(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation)));
+                }
                 _calcPositions.AddRange(ls.Take(index-1));
                 var arg = ls.Skip(index-1).Take(3);
                 _calcPositions.Add(new InterpretiveBracketItem(){
