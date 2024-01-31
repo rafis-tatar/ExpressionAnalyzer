@@ -13,7 +13,7 @@ public class Interpretive
         }
         public void RegisterFunction(string name, Delegate func)
         {
-                if(_functions.ContainsKey(name) || _functions.Keys.Any(o=>o.StartsWith(name))) 
+                if(_functions.ContainsKey(name)) 
                         throw new ArgumentException($"Function with name {name} already registered or start with ");
                 _functions.Add(name, func);
         }

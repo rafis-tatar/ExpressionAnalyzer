@@ -3,8 +3,9 @@ using ExpressionAnalyzer;
 
 var interpretive = new Interpretive();
 interpretive.RegisterFunction("sin",(double a) =>Math.Sin(a));
+interpretive.RegisterFunction("sin_a",(double a) => Math.Sin(a));
 interpretive.RegisterFunction("date",() => DateTime.Now.Day);
-var expression = "4+3^2";
+var expression = "4+3^2+sin_a(3)";
 
 try
 {
