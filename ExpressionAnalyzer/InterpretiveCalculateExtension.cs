@@ -19,7 +19,7 @@ public static class InterpretiveCalculateExtension
                 {            
                         if(argument is IInterpretiveItem arg)
                         {
-                                result = SetOperation(result,arg, currentOperation);  
+                                result = SetMathOperation(result,arg, currentOperation);  
                                 currentOperation = null;                                 
                         }   
                         else if(argument is InterpretiveOperationItem operation)
@@ -39,6 +39,7 @@ public static class InterpretiveCalculateExtension
         }
 
         static IEnumerable<IInterpretiveElement> SetCalculatePosition(IEnumerable<IInterpretiveElement> Arguments)
+
         {                        
                 if (!Arguments.Any(operation=>IsDivisionOperation(operation) || IsMultiplicationOperation(operation) || IsExponentiation(operation)))
                         return Arguments;

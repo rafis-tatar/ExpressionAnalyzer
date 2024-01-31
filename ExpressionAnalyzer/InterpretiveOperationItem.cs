@@ -14,7 +14,7 @@ public class InterpretiveOperationItem : IInterpretiveElement
                 };                
         }
 
-        public string? Expression { get; }
+        public string? Expression { get; set; }
         public OperatorType OperatorType {get;}
         public override string ToString()
         {

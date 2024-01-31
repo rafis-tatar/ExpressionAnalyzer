@@ -16,7 +16,7 @@ public class Interpretive
                 _functions = new Dictionary<string, Delegate>();     
                  _variables= new Dictionary<string, object>();
         }
-        public bool SetVariable<T>(string name, T variable)  where T: notnull               
+        public bool SetVariable<T>(string name, T variable)  where T: notnull
         {
                 if (!name.StartsWith("@"))
                         throw new SyntaxException("Variable name must start with \'@\' symbol");
@@ -113,13 +113,18 @@ public class Interpretive
                                 var functionContentExpression = currentExpression.Substring(str.Length,endIndex+1);                                                                
 
                                 var arguments = GetInterpretiveElements(functionContentExpression.Substring(1,endIndex- 1),cultureInfo);
-                                var functionItem = new InterpretiveFuncItem()
+                                var function = _functions[str];
+                                var classType = typeof(InterpretiveFuncItem<>);
+                                Type[] typeParams = new Type[] { function.Method.ReturnType };
+                                Type constructedType = classType.MakeGenericType(typeParams);
+                                var genericFunType = (IInterpretiveFuncItem?)Activator.CreateInstance(constructedType);
+                                if(genericFunType != null)
                                 {
-                                        Expression = $"{str}{functionContentExpression}",
-                                        Arguments = arguments, 
-                                        Function = _functions[str]
-                                };
-                                return functionItem;
+                                        genericFunType.Expression = $"{str}{functionContentExpression}";        
+                                        genericFunType.Arguments = arguments;
+                                        genericFunType.Function = function;
+                                }
+                                return genericFunType;
                         }
                         else
                         {
@@ -160,7 +165,7 @@ public class Interpretive
                 }
                 if(double.TryParse(raw, NumberStyles.Number, cultureInfo, out double result))
                 {
-                        return new InterpretiveValueItem(result);
+                        return new InterpretiveNumberItem(result);
                 }
                 return default;
         }
