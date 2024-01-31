@@ -9,6 +9,7 @@ public class InterpretiveOperationItem : IInterpretiveElement
                         OperatorType.Subtraction => "-",
                         OperatorType.Multiplication => "*",
                         OperatorType.Division => "/",
+                        OperatorType.Exponentiation => "^",
                         _ => throw new SyntaxException($"There's no a suitable operator"),
                 };                
         }

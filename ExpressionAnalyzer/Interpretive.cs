@@ -10,12 +10,11 @@ public class Interpretive
         {       
                 _valueItemBuilder = new StringBuilder();   
                 _functions = new Dictionary<string, Delegate>();     
-                LoadFunctions();
         }
         public void RegisterFunction(string name, Delegate func)
         {
-                if(_functions.ContainsKey(name)) 
-                        throw new ArgumentException($"Function with name {name} already registered");
+                if(_functions.ContainsKey(name) || _functions.Keys.Any(o=>o.StartsWith(name))) 
+                        throw new ArgumentException($"Function with name {name} already registered or start with ");
                 _functions.Add(name, func);
         }
         public double Calculate(string? expression)=>Calculate(expression, CultureInfo.CurrentCulture);
@@ -24,13 +23,7 @@ public class Interpretive
                 var items = GetInterpretiveElements(expression?.Replace(" ",string.Empty),cultureInfo);
                 var result = items.Calculate();        
                 return result;
-        }        
-       
-        private void LoadFunctions()
-        {                
-                RegisterFunction("SUM", (double a, double b)=> a+b);
-                RegisterFunction("SQRT", (double a )=> Math.Sqrt(a));
-        }
+        }               
         private IEnumerable<IInterpretiveElement> GetInterpretiveElements(string? expression, CultureInfo cultureInfo)
         {
                 string? currentExpression = expression;
@@ -128,6 +121,7 @@ public class Interpretive
                         '-' => new InterpretiveOperationItem(OperatorType.Subtraction),
                         '*' => new InterpretiveOperationItem(OperatorType.Multiplication),
                         '/' => new InterpretiveOperationItem(OperatorType.Division),
+                        '^' => new InterpretiveOperationItem(OperatorType.Exponentiation),
                         _ => throw new SyntaxException($"There's no a suitable operator for the char {c}"),
                 };                
                 return item;
@@ -176,7 +170,7 @@ public class Interpretive
         private static bool IsOperatorCharacter(char? c) 
                 => c!= null && c switch
                 {           
-                var x when new char?[]{'+', '-', '*', '/'}.Contains(x) => true,
+                var x when new char?[]{'+', '-', '*', '/', '^'}.Contains(x) => true,
                 _ => false
                 };       
 }
