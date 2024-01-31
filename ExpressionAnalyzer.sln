@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionAnalyzer", "Expre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionAnalyzerConsole", "ExpressionAnalyzerConsole\ExpressionAnalyzerConsole.csproj", "{162E19E2-BCB6-4B19-94AA-26CBF55B727C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionAnalyzer.Test", "ExpressionAnalyzer.Test\ExpressionAnalyzer.Test.csproj", "{C1756124-93B1-4B25-ABED-D8E27A6B53A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{162E19E2-BCB6-4B19-94AA-26CBF55B727C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{162E19E2-BCB6-4B19-94AA-26CBF55B727C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{162E19E2-BCB6-4B19-94AA-26CBF55B727C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1756124-93B1-4B25-ABED-D8E27A6B53A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1756124-93B1-4B25-ABED-D8E27A6B53A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1756124-93B1-4B25-ABED-D8E27A6B53A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1756124-93B1-4B25-ABED-D8E27A6B53A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

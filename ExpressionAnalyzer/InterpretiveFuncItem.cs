@@ -53,30 +53,26 @@ public class InterpretiveFuncItem : IInterpretiveFuncItem
 {
         public string? Expression {get;  set;}
         public Delegate? Function {get;set;}    
-        public IEnumerable<IInterpretiveElement>? Arguments {get;set;}
-        object? IInterpretiveItem.GetValue()=> this.GetValue();
-        public double GetValue()
+        public IEnumerable<IInterpretiveElement>? Arguments {get;set;}        
+        public object? GetValue()
         {
                 if(Function!= null)
                 {
-                        List<double?> ls = new List<double?>();
+                        List<object?> ls = new List<object?>();
                         foreach(var item in Arguments ?? Array.Empty<IInterpretiveElement>())
                         {
                                 if(item is InterpretiveSeparateItem) continue;
                                 var arg = item as IInterpretiveItem;
-                                if(arg!= null && arg.GetValue() is double value)
+                                if(arg!= null)
                                 {                                        
-                                        ls.Add(value);
+                                        ls.Add(arg.GetValue());
                                 }                                        
                         } 
-                        object?[]? arguments = ls.Any() ? ls.Select(o=>(object?)o).ToArray() : null;                        
+                        object?[]? arguments = ls.Any() ? ls.ToArray() : null;                        
                         var result = Function.DynamicInvoke(arguments);
-                        if (result is double) 
-                                return (double) result;
-                        else 
-                                return Convert.ToDouble(result);
+                        return result;                        
                 }                
-                return double.NaN;
+                return default;
         }
         public override string ToString()
                 => Expression ?? string.Empty;
